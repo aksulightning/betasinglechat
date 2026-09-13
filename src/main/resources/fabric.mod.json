@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "betasinglechat",
+  "version": "${version}",
+  "name": "Beta Single Chat",
+  "description": "Local singleplayer chat and commands for Minecraft Beta 1.7.3.",
+  "authors": ["aksulightning"],
+  "license": "MIT",
+  "environment": "client",
+  "mixins": ["betasinglechat.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "1.0.0-beta.7.3",
+    "java": ">=17"
+  }
+}
