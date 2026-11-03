@@ -24,6 +24,7 @@ Hostile mobs still follow Beta's difficulty rules, including despawning in Peace
 
 Use JDK 21 or newer to run this project's Gradle 9.7.1 / Loom toolchain.
 The mod targets Java 17, matching the existing Babric configuration.
+
 Install Temurin from [here](https://adoptium.net/temurin/releases/?version=21).
 
 Temurin for Debian-like distros (one line copy&paste):
