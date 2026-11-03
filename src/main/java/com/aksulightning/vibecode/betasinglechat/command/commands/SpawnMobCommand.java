@@ -7,7 +7,6 @@ import com.aksulightning.vibecode.betasinglechat.mixin.EntityRegistryAccessor;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityRegistry;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.MonsterEntity;
 import java.lang.reflect.Modifier;
 import java.util.Map;
 
@@ -19,7 +18,7 @@ public final class SpawnMobCommand implements Command {
 
     @Override
     public String usage() {
-        return "/spawnmob <mob name>";
+        return "/spawnmob <mob name or 49>";
     }
 
     @Override
@@ -27,13 +26,15 @@ public final class SpawnMobCommand implements Command {
         if (arguments.length != 1) {
             throw new CommandException("Usage: " + usage());
         }
+        // Beta registers raw entity ID 49 as "Monster".
+        String requestedMob = arguments[0].equals("49") ? "Monster" : arguments[0];
         String id = null;
         for (Map.Entry<String, Class<? extends Entity>> entry
                 : EntityRegistryAccessor.betasinglechat$getIdToClass().entrySet()) {
             Class<? extends Entity> type = entry.getValue();
-            if (entry.getKey().equalsIgnoreCase(arguments[0])
+            if (entry.getKey().equalsIgnoreCase(requestedMob)
                     && LivingEntity.class.isAssignableFrom(type)
-                    && type != LivingEntity.class && type != MonsterEntity.class
+                    && type != LivingEntity.class
                     && !Modifier.isAbstract(type.getModifiers())) {
                 id = entry.getKey();
                 break;

@@ -56,7 +56,10 @@ unless the new command itself requires another game hook.
 - `SpawnMobCommand`: reads the actual `EntityRegistry.idToClass` through a static
   mixin accessor, matches registered names without case sensitivity, and accepts
   concrete `LivingEntity` subclasses while excluding the registry's generic
-  `Mob` and `Monster` base types. It creates the entity through
+  `Mob` base type. Beta's `MonsterEntity` is concrete and registered as `Monster`
+  with raw ID 49, so `/spawnmob monster` (case-insensitive) and `/spawnmob 49`
+  both resolve to that entry. The numeric `49` alias is handled before name lookup;
+  other numeric aliases are not added. It creates the entity through
   `EntityRegistry.create(String, World)`. It tries eight directions three blocks
   away at the player's feet and height offsets 0, 1, -1, 2, -2, checks Beta's
   0–128 world bounds and collision/occupancy APIs, then calls `World.spawnEntity`.
@@ -78,6 +81,13 @@ write health directly can bypass these hooks.
 
 ## Validation and limits
 
+`build.sh` is an executable Bash wrapper for `bash ./gradlew build`. It changes
+to the project directory, forwards arguments unchanged, and uses `exec` to preserve
+Gradle's exit status. It respects an explicit `JAVA_HOME`; when unset, it searches
+Linux's `/usr/lib/jvm` for a JDK with Java and javac executables and a compiler
+major version of at least 21. If none is found, the Gradle wrapper selects Java
+normally. This supports the local environment where the default Java is 8.
+
 Validation completed on 2026-09-13:
 
 - `JAVA_HOME=/usr/lib/jvm/temurin-21-jdk-amd64 bash ./gradlew build`:
@@ -94,12 +104,21 @@ Validation completed on 2026-09-13:
   these do not prevent the Gradle 9.7.1 build. No in-game GUI session was run.
 - Rebuilt successfully after switching to MIT (5 tasks executed, 2 up-to-date).
   Confirmed the distribution JAR declares `MIT` and contains the MIT license text.
+- Rebuilt successfully after adding the `49`/`monster` spawn support using the
+  same JDK 21 `bash ./gradlew build` command (5 tasks executed, 2 up-to-date).
+  Confirmed in mapped Beta bytecode that ID 49 registers the concrete
+  `MonsterEntity(World)` class as `Monster`, with a vanilla inherited renderer.
+  In-game spawning was not tested.
+- Executed `build.sh --offline` from `/tmp` without setting `JAVA_HOME`:
+  **BUILD SUCCESSFUL** (7 tasks up-to-date). This verified executable permissions,
+  automatic JDK selection, project-directory resolution, and argument forwarding.
 
 No modern-version Fabric subprojects exist in this workspace.
 
 Manual in-game verification should cover configured chat keys, ordinary messages,
 Escape/empty submission, unknown commands, `/give 1`, `/give 1 64`, invalid IDs and
-amounts, full-inventory overflow, `/spawnmob pig`, `/spawnmob zombie`, invalid mobs,
+amounts, full-inventory overflow, `/spawnmob pig`, `/spawnmob zombie`,
+`/spawnmob monster`, `/spawnmob 49`, invalid mobs,
 blocked spawn space, both `/god` toggles, environmental/mob damage, world reload,
 and multiplayer chat. Compilation alone does not verify GUI behavior in a running
 Minecraft client. Chat history is local to the running session. Item metadata,
