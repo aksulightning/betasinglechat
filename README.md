@@ -1,7 +1,7 @@
 # Beta Single Chat
 
 A client mod for Minecraft Beta 1.7.3 using Babric and BINY mappings. Adds local
-singleplayer chat and commands without requiring StationAPI.
+singleplayer chat and commands without requiring StationAPI for example.
 
 ## Usage
 
@@ -24,6 +24,15 @@ Hostile mobs still follow Beta's difficulty rules, including despawning in Peace
 
 Use JDK 21 or newer to run this project's Gradle 9.7.1 / Loom toolchain.
 The mod targets Java 17, matching the existing Babric configuration.
+Install Temurin from [here](https://adoptium.net/temurin/releases/?version=21).
+
+Temurin for Debian-like distros (one line copy&paste):
+
+```sh
+sudo apt-get update && sudo apt-get install -y curl gpg ca-certificates && sudo install -d -m 0755 /etc/apt/keyrings && curl -fsSL https://packages.adoptium.net/artifactory/api/gpg/key/public | sudo gpg --dearmor --yes -o /etc/apt/keyrings/adoptium.gpg && echo "deb [signed-by=/etc/apt/keyrings/adoptium.gpg] https://packages.adoptium.net/artifactory/deb $(. /etc/os-release; echo ${UBUNTU_CODENAME:-$VERSION_CODENAME}) main" | sudo tee /etc/apt/sources.list.d/adoptium.list > /dev/null && sudo apt-get update && sudo apt-get install -y temurin-21-jdk && java -version
+```
+
+Then build it:
 
 ```sh
 ./build.sh

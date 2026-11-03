@@ -2,7 +2,7 @@
 
 ## Scope
 
-Agents may work only inside the codespace named `com.aksulightning.fbxplayermodels`.
+Agents may work only inside the codespace named `com.aksulightning.vibecode.betasinglechat`.
 
 Do not touch repositories. Do not create branches, commits, pull requests, issues, labels, comments, or any other not asked changes.
 
@@ -14,8 +14,8 @@ When working in the allowed codespace, agents should:
 - Improve the code when the improvement directly supports the requested work.
 - Keep changes focused and avoid touching unrelated code.
 - Prefer durable, maintainable implementations over temporary fixes.
-- The modloader is Fabric.
-- Working on versions: 1.21.1, 26.2.
+- The modloader is Babric.
+- Working on versions: Beta 1.7.3.
 
 ## Avoid
 
@@ -33,7 +33,7 @@ For every coding task:
 
 1. Use codebase com.aksulightning.fbxplayermodels.
 2. Create, make changes, remove the code.
-3. Test only with: bash ./gradlew :fabric-1.21.1:compileJava :fabric-1.21.1:compileClientJava :fabric-26.2:compileJava :fabric-26.2:compileClientJava
+3. Test only with: JAVA_HOME=/usr/lib/jvm/temurin-21-jdk-amd64 bash ./gradlew check
 4. Document the changes made to the Code_Guide.md file.
 
 Do not run unrelated checks, test suites, formatters, or build tasks unless explicitly asked.
