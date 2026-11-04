@@ -98,6 +98,17 @@ also remains available.
 Install `build/libs/beta-single-chat-1.0.0.jar` in a Babric Beta 1.7.3 client's
 mods folder. See [Code_Guide.md](Code_Guide.md) for implementation details.
 
+The [Build workflow](.github/workflows/build.yml) also builds and checks the mod
+on pushes, pull requests, and manual runs. Open a successful run under GitHub's
+Actions tab and download the `beta-single-chat` artifact for the mod and sources
+JARs. Artifacts are retained for 14 days; install the JAR without `-sources`.
+
+Successful pushes and manual builds on the default branch also replace the
+rolling **Build** prerelease (tag `build`) with the newly built JARs and generated
+change notes. The previous `build` release and tag are deleted only after the new
+build succeeds and its JARs are downloaded. Pull requests and other branches only
+produce workflow artifacts. The mod version still comes from `gradle.properties`.
+
 ## License
 
 MIT; see [LICENSE](LICENSE).

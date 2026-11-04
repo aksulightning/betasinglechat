@@ -204,6 +204,64 @@ with god mode off, including respawn and world reload. It does not restore healt
 stop fire visuals, or teleport a player who falls into the void. Other mods that
 write health directly can bypass these hooks.
 
+## GitHub Actions build
+
+`.github/workflows/build.yml` runs on pushes, pull requests, and manual
+`workflow_dispatch` requests. Its Ubuntu job installs Temurin JDK 21, matching the
+local Gradle requirement, and invokes the checked-in wrapper with
+`bash ./gradlew build`. This runs Gradle checks and packages the remapped mod and
+sources JARs. Java bytecode remains targeted to Java 17 by the existing build.
+
+The workflow uses `actions/checkout@v7`, `actions/setup-java@v6`,
+`gradle/actions/setup-gradle@v6`, and `actions/upload-artifact@v7`, checked against
+their official action documentation. Gradle setup handles caching and wrapper
+validation; Java setup does not enable a second competing Gradle cache. References:
+[checkout](https://github.com/actions/checkout),
+[Java setup](https://github.com/actions/setup-java),
+[Gradle setup](https://github.com/gradle/actions), and
+[artifact upload](https://github.com/actions/upload-artifact).
+
+Only `build/libs/*.jar` is uploaded as the `beta-single-chat` artifact after a
+successful build, with 14-day retention and a hard failure if no JARs exist.
+Development JARs in other output directories are excluded. The token has
+`contents: read` permission in the build job, checkout does not retain credentials,
+and the build has a 30-minute timeout. Newer runs cancel earlier runs on the same
+workflow/ref except for the default branch: its runs finish before replacement so
+publication cannot be interrupted by another push or manual run.
+
+The `release` job depends on a successful build and runs only for pushes or manual
+runs on the repository's default branch. It downloads the same run's
+`beta-single-chat` artifact with `actions/download-artifact@v8`, validates that JARs
+exist, then replaces the single rolling prerelease titled `Build`, with tag
+`build`. Only this job has `contents: write`, and it has a 10-minute timeout.
+Pull requests, other branches, and tag pushes do not enter the release job.
+
+The release shell step uses GitHub CLI with its repository/token supplied through
+environment variables. It completes API lookups for the existing `build` release
+and exact tag before deletion, so lookup failures preserve the existing release.
+It deletes that release and its tag if present, then creates a fresh prerelease
+with both JARs, the exact built commit as its target, and generated change notes.
+The API tag lookup also handles a leftover tag without a release. Other release
+tags are unaffected. The tag is intentionally reused; the mod's packaged version
+continues to come from `mod_version` in `gradle.properties`.
+
+Replacement uses separate GitHub API calls. After deletion starts, publication
+failure can temporarily leave no `Build` release; rerunning the successful workflow
+recreates it. This rolling release must remain mutable, since immutable releases
+or protected `build` tags prevent replacement. This workflow configuration does
+not create or remove releases during local validation. Official references:
+[artifact download](https://github.com/actions/download-artifact),
+[release deletion](https://cli.github.com/manual/gh_release_delete), and
+[release creation](https://cli.github.com/manual/gh_release_create).
+
+Validation on 2026-11-04: reviewed the workflow's triggers, JDK, action versions,
+wrapper invocation, permissions, and artifact path against the project and action
+documentation. Ran only
+`JAVA_HOME=/usr/lib/jvm/temurin-21-jdk-amd64 bash ./gradlew check` locally:
+**BUILD SUCCESSFUL**, with the existing nine-test suite up-to-date. Existing
+Gradle deprecation warnings remain. The workflow has not been executed on GitHub;
+local Gradle checks do not validate hosted action execution or artifact upload.
+
 ## Validation and limits
 
 `build.sh` is an executable Bash wrapper for `bash ./gradlew build`. It changes
