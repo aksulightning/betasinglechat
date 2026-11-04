@@ -8,8 +8,13 @@ import org.lwjgl.input.Keyboard;
 
 public final class SingleplayerChat {
     private static final CommandDispatcher COMMANDS = CommandDispatcher.createDefault();
+    private static final ChatHistory HISTORY = new ChatHistory();
 
     private SingleplayerChat() {
+    }
+
+    public static ChatHistory history() {
+        return HISTORY;
     }
 
     public static boolean isSingleplayer(Minecraft minecraft) {
@@ -35,6 +40,7 @@ public final class SingleplayerChat {
         if (message.isEmpty()) {
             return;
         }
+        HISTORY.add(message);
         CommandContext context = new CommandContext(minecraft);
         if (message.startsWith("/")) {
             COMMANDS.execute(context, message.substring(1));

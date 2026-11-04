@@ -24,15 +24,27 @@ game is processing a pressed LWJGL keyboard event. `SingleplayerChat` checks
 the actual configured `options.chatKey.code`, a living and awake local player,
 and the absence of another screen before opening vanilla `ChatScreen`.
 
-`ChatScreenMixin` intercepts `keyPressed(char, int)` for Enter and numpad Enter
-in a local world. It passes the screen's existing text to `SingleplayerChat.submit`,
-closes the screen, and cancels vanilla sending. Vanilla editing, the 100-character
-input limit, keyboard repeat cleanup, Escape, and chat rendering are retained.
-The hook does not process multiplayer submissions.
+`ChatScreenMixin` intercepts `keyPressed(char, int)` for Up, Down, Enter, and
+numpad Enter in a local world. Enter passes the screen's existing text to
+`SingleplayerChat.submit`, closes the screen, and cancels vanilla sending.
+Up recalls older submissions; Down recalls newer submissions and restores the
+original draft after the newest entry. Each screen has its own history index and
+draft, so reopening chat starts at the newest end. Navigation stops at either end
+without wrapping. Recalled text remains editable through vanilla input handling.
+Vanilla editing, the 100-character input limit, keyboard repeat cleanup, Escape,
+and chat rendering are retained. The hook does not process multiplayer input.
 
 `SingleplayerChat` rejects missing or remote worlds and mismatched player worlds,
-trims input, ignores empty messages, displays ordinary messages through
-`InGameHud.addChatMessage`, and routes `/` inputs to `CommandDispatcher`.
+trims input, ignores empty messages, records submissions in `ChatHistory`, displays
+ordinary messages through `InGameHud.addChatMessage`, and routes `/` inputs to
+`CommandDispatcher`. Commands are recorded before execution so invalid commands
+can also be recalled and corrected. Replies and canceled drafts are not recorded.
+
+`ChatHistory` retains at most 100 sent messages and commands, dropping the oldest
+entry when full and skipping consecutive duplicates. `SingleplayerChat` owns one
+static history for the running game session, shared across singleplayer worlds.
+It is not written to disk and does not collect multiplayer messages. Per-screen
+navigation and draft fields in `ChatScreenMixin` use `@Unique` to avoid collisions.
 
 ## Command system
 
@@ -115,11 +127,26 @@ Validation completed on 2026-09-13:
 
 No modern-version Fabric subprojects exist in this workspace.
 
+Sent-message recall validation on 2026-11-04:
+
+- `JAVA_HOME=/usr/lib/jvm/temurin-21-jdk-amd64 bash ./gradlew check`:
+  **BUILD SUCCESSFUL**, including compilation of the history storage and updated
+  chat mixin. The initial sandboxed invocation could not write the Gradle wrapper
+  lock outside the workspace; the same command succeeded with cache access.
+- Gradle reported no test sources; this confirms compilation rather than
+  automated keyboard behavior coverage. Existing Gradle deprecation warnings
+  remain. No in-game GUI session was run.
+
 Manual in-game verification should cover configured chat keys, ordinary messages,
 Escape/empty submission, unknown commands, `/give 1`, `/give 1 64`, invalid IDs and
 amounts, full-inventory overflow, `/spawnmob pig`, `/spawnmob zombie`,
 `/spawnmob monster`, `/spawnmob 49`, invalid mobs,
 blocked spawn space, both `/god` toggles, environmental/mob damage, world reload,
 and multiplayer chat. Compilation alone does not verify GUI behavior in a running
-Minecraft client. Chat history is local to the running session. Item metadata,
+Minecraft client. Sent-message recall should also be checked with empty history,
+multiple messages and commands, repeated identical submissions, both history
+boundaries, draft restoration (including after editing the restored draft), editing
+and resending recalled commands, Escape, reopening chat, and switching worlds.
+Verify that Up/Down retain vanilla behavior in multiplayer. Chat history is local
+to the running session. Item metadata,
 tab completion, and mob-specific habitat checks are not implemented.

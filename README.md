@@ -9,6 +9,13 @@ Open chat with the configured chat key (T by default), type a message or command
 and press Enter. Escape closes chat without sending. Regular messages appear
 locally as `<player name> message`. Multiplayer chat keeps its normal behavior.
 
+Press Up to recall older sent messages and commands, and Down to move toward
+newer ones. Moving past the newest entry restores the draft you were typing.
+Recalled text can be edited and sent again. History keeps the last 100 non-empty
+singleplayer submissions for the running game session, skipping consecutive
+duplicates. It is shared across singleplayer worlds and clears when the game exits.
+Escape discards the current draft without adding it to history.
+
 | Command | Behavior |
 | --- | --- |
 | `/give <item ID> [amount]` | Gives an item by its numeric Beta ID. Amount defaults to 1 and must be 1–2304. Stacks respect the item's stack limit; overflow drops near the player. |
