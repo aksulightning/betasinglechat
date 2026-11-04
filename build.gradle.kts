@@ -63,6 +63,8 @@ dependencies {
 	compileOnly("org.projectlombok:lombok:1.18.42")
 	annotationProcessor("org.projectlombok:lombok:1.18.42")
 
+	testImplementation("junit:junit:4.13.2")
+
 	// adds some useful annotations for miscellaneous uses. does not add any dependencies, though people without the lib will be missing some useful context hints.
 	implementation("org.jetbrains:annotations:23.0.0")
 	implementation("com.google.guava:guava:33.2.1-jre")
@@ -97,6 +99,10 @@ tasks.withType<ProcessResources> {
 // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
 tasks.withType<JavaCompile> {
 	options.encoding = "UTF-8"
+}
+
+tasks.test {
+	useJUnit()
 }
 
 java {

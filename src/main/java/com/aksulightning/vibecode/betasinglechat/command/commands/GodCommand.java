@@ -17,6 +17,11 @@ public final class GodCommand implements Command {
     }
 
     @Override
+    public String description() {
+        return "Toggle damage protection for the current player.";
+    }
+
+    @Override
     public void execute(CommandContext context, String[] arguments) throws CommandException {
         if (arguments.length != 0) {
             throw new CommandException("Usage: " + usage());

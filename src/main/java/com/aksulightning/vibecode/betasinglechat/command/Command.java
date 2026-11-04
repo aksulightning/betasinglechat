@@ -5,5 +5,7 @@ public interface Command {
 
     String usage();
 
+    String description();
+
     void execute(CommandContext context, String[] arguments) throws CommandException;
 }

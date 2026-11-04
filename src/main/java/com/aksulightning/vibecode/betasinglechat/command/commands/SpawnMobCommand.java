@@ -1,5 +1,6 @@
 package com.aksulightning.vibecode.betasinglechat.command.commands;
 
+import com.aksulightning.vibecode.betasinglechat.command.Arguments;
 import com.aksulightning.vibecode.betasinglechat.command.Command;
 import com.aksulightning.vibecode.betasinglechat.command.CommandContext;
 import com.aksulightning.vibecode.betasinglechat.command.CommandException;
@@ -11,6 +12,7 @@ import java.lang.reflect.Modifier;
 import java.util.Map;
 
 public final class SpawnMobCommand implements Command {
+    private static final int MAX_AMOUNT = 32;
     @Override
     public String name() {
         return "spawnmob";
@@ -18,14 +20,19 @@ public final class SpawnMobCommand implements Command {
 
     @Override
     public String usage() {
-        return "/spawnmob <mob name or 49>";
+        return "/spawnmob <mob name or 49> [amount]";
+    }
+
+    @Override
+    public String description() {
+        return "Spawn registered mobs nearby; amount defaults to 1 (maximum 32).";
     }
 
     @Override
     public void execute(CommandContext context, String[] arguments) throws CommandException {
-        if (arguments.length != 1) {
-            throw new CommandException("Usage: " + usage());
-        }
+        Arguments.count(arguments, 1, 2, usage());
+        int amount = arguments.length == 2
+                ? Arguments.integer(arguments[1], 1, MAX_AMOUNT, "Amount") : 1;
         // Beta registers raw entity ID 49 as "Monster".
         String requestedMob = arguments[0].equals("49") ? "Monster" : arguments[0];
         String id = null;
@@ -43,6 +50,18 @@ public final class SpawnMobCommand implements Command {
         if (id == null) {
             throw new CommandException("Unknown mob: " + arguments[0]);
         }
+        int spawned = 0;
+        while (spawned < amount && spawnOne(context, id)) {
+            spawned++;
+        }
+        if (spawned == 0) {
+            throw new CommandException("No room to spawn " + id + " near you.");
+        }
+        context.reply("Spawned " + spawned + " " + id + (spawned < amount
+                ? " (requested " + amount + "; no more room nearby)." : "."));
+    }
+
+    private boolean spawnOne(CommandContext context, String id) throws CommandException {
         Entity entity = EntityRegistry.create(id, context.world());
         if (!(entity instanceof LivingEntity)) {
             throw new CommandException("Could not create mob: " + id);
@@ -62,11 +81,10 @@ public final class SpawnMobCommand implements Command {
                     continue;
                 }
                 if (context.world().spawnEntity(entity)) {
-                    context.reply("Spawned " + id + ".");
-                    return;
+                    return true;
                 }
             }
         }
-        throw new CommandException("No room to spawn " + id + " near you.");
+        return false;
     }
 }

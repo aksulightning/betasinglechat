@@ -21,6 +21,11 @@ public final class GiveCommand implements Command {
     }
 
     @Override
+    public String description() {
+        return "Give items by numeric ID; amount defaults to 1 (maximum 2304).";
+    }
+
+    @Override
     public void execute(CommandContext context, String[] arguments) throws CommandException {
         if (arguments.length < 1 || arguments.length > 2) {
             throw new CommandException("Usage: " + usage());

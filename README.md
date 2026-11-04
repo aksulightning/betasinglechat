@@ -18,9 +18,52 @@ Escape discards the current draft without adding it to history.
 
 | Command | Behavior |
 | --- | --- |
+| `/help [command or page]` | Lists commands six at a time, or shows usage and a description for one command. A bare `/` opens help. |
 | `/give <item ID> [amount]` | Gives an item by its numeric Beta ID. Amount defaults to 1 and must be 1–2304. Stacks respect the item's stack limit; overflow drops near the player. |
-| `/spawnmob <mob name or 49>` | Spawns a registered mob near the player. Names ignore case: `pig`, `zombie`, `PigZombie`, `wolf`, etc. `/spawnmob monster` and `/spawnmob 49` spawn Beta's generic Monster entity (ID 49). Reports an error if the mob is unknown or there is no room. |
+| `/spawnmob <mob name or 49> [amount]` | Spawns 1–32 registered mobs nearby (default 1). Names ignore case: `pig`, `zombie`, `PigZombie`, `wolf`, etc. `monster` and `49` select Beta's generic Monster entity. Reports how many spawned if space runs out. |
 | `/god` | Toggles damage protection and prints `God mode enabled.` or `God mode disabled.` |
+| `/heal` | Restores all ten hearts. |
+| `/time <day\|night\|ticks>` | Sets the current day's time: day = 1000, night = 13000, or a whole number from 0–23999. Keeps scheduled block updates at their existing relative delays. |
+| `/weather <clear\|rain\|thunder>` | Sets Overworld weather for five minutes, then normal weather cycles resume. |
+| `/pos` | Shows feet coordinates and dimension ID (0 = Overworld, -1 = Nether). |
+| `/seed` | Shows the world seed. |
+| `/tp <x> <y> <z>` | Teleports to feet coordinates. Supports decimals and relative coordinates, such as `/tp ~5 ~ ~-2`. |
+| `/spawn` | Teleports to a safe position within four blocks of Overworld world spawn. |
+| `/setspawn` | Sets Overworld world spawn at your current block. Existing bed respawn points still apply. |
+| `/sethome [name]` | Saves or replaces a named home, including position, facing, and dimension. The default name is `home`; maximum 32 homes per world. |
+| `/home [name]` | Teleports to a saved home in the current dimension. Defaults to `home`. |
+| `/homes [page]` | Lists saved homes alphabetically, six per page, with their dimension IDs. |
+| `/delhome <name>` | Deletes a saved home. |
+| `/back` | Returns to the location before your last successful command teleport. Repeating it switches between the two locations. |
+| `/repair` | Repairs the selected held item if it has durability. |
+| `/clear [confirm]` | `/clear` requests confirmation; `/clear confirm` deletes main inventory, armor, and cursor items within 30 seconds. Inventory changes invalidate confirmation. |
+| `/fly` | Toggles collision-aware flight. Use movement keys to move, jump to rise, and sneak to descend. |
+| `/run` | Toggles running. Moving forward gains a 30% speed boost and extra forward momentum when jumping. |
+| `/speed <value>` | Sets flight speed from 0.1–4 times the default speed. Default is 1; walking speed is unaffected. |
+
+Homes are saved in the world's `data/betasinglechat_homes.dat` through vanilla
+world saving. Names ignore case and allow 1–32 ASCII letters, digits, underscores,
+or hyphens. Home names are shared across dimensions within each world; enter a
+home's dimension before using `/home`. `/spawn` and `/setspawn` require the Overworld.
+
+Teleports check destination chunks, player space, solid support, collidable entities,
+and hazards (fluids, fire, cactus, and portals). Unsupported air destinations are
+allowed while flight is enabled. X/Z must be within +/-30,000,000 and the player
+must fit between Y 0 and 128. Mounted players and players carrying passengers
+must dismount before teleporting. Failed teleports leave `/back` unchanged.
+`/back` and pending clear confirmations belong to the player session and are not saved.
+
+Flight retains normal block collisions, stops vertical movement at the world's
+height limits, and prevents accumulating fall damage while flying. Disabling it
+restores gravity; flight does not provide god mode. Flight and speed are not saved
+and reset on player replacement, including respawn and reopening a world.
+
+Running starts disabled. Type `/run` to enable it, then use your normal forward
+key to sprint; type `/run` again to disable it. The boost pauses when moving only
+backward/sideways, sneaking, swimming, climbing ladders, riding, flying, or pressing
+against a wall, and resumes when forward movement is eligible again. It preserves
+normal collision, gravity, and fall damage. The toggle is not saved and resets on
+respawn or reopening a world. `/speed` continues to control flight alone.
 
 God mode belongs to the current player entity and is not saved. Respawning,
 reopening a world, or a dimension change that replaces the player resets it.
